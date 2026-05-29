@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小龍的魔法書 - Day & Night Magic</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        /* ==================== 核心日夜變數定義 ==================== */
+        :root {
+            /* 白晝馬卡龍變數 */
+            --bg-main: #fffcf7;
+            --grid-dot: rgba(244, 208, 104, 0.15);
+            --nav-bg: #2c3142;
+            --text-color: #3a3f50;
+            --text-sub: #5a6070;
+            --card-yellow: #fff9e6;
+            --card-purple: #f5f0ff;
+            --card-green: #eef9f0;
+            --card-border: transparent;
+            --btn-bg: #2c3142;
+            --btn-text: #ffffff;
+            --star-color: #f4d068;
+            --glow-yellow: rgba(244, 208, 104, 0.45);
+            --glow-purple: rgba(182, 158, 255, 0.4);
+            --glow-green: rgba(178, 232, 191, 0.5);
+            --divider-color: #e2dad0;
+        }
+
+        [data-theme="dark"] {
+            /* 黑夜奧術深色變數 */
+            --bg-main: #131520;
+            --grid-dot: rgba(147, 112, 219, 0.15);
+            --nav-bg: #0b0c13;
+            --text-color: #f0f2f5;
+            --text-sub: #b0b5c1;
+            --card-yellow: #1e1b24;
+            --card-purple: #1a1728;
+            --card-green: #141c19;
+            --card-border: rgba(255, 255, 255, 0.08);
+            --btn-bg: #f4d068;
+            --btn-text: #131520;
+            --star-color: #b69eff;
+            --glow-yellow: rgba(244, 208, 104, 0.25);
+            --glow-purple: rgba(182, 158, 255, 0.35);
+            --glow-green: rgba(114, 219, 142, 0.25);
+            --divider-color: #2c2f42;
+        }
+
+        body { 
+            font-family: "Quicksand", "Microsoft JhengHei", sans-serif; 
+            margin: 0; 
+            background: var(--bg-main); 
+            color: var(--text-color); 
+            overflow-x: hidden;
+            background-image: radial-gradient(var(--grid-dot) 1.5px, transparent 0);
+            background-size: 30px 30px;
+            transition: all 0.5s ease; /* 讓切換主題時全網頁柔和漸變 */
+        }
+
+        /* 仙女棒滑鼠粒子 */
+        .magic-particle {
+            position: fixed;
+            pointer-events: none;
+            font-size: 14px;
+            color: var(--star-color);
+            z-index: 9999;
+            animation: particleFade 0.8s forwards ease-out;
+        }
+        @keyframes particleFade {
+            0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+            100% { transform: translate(-50%, -80%) scale(0) rotate(180deg); opacity: 0; }
+        }
+
+        /* 導覽列 */
+        header {
+            background: var(--nav-bg);
+            padding: 0 6%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            transition: background 0.5s ease;
+        }
+
+        .logo { font-size: 1.4rem; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .logo i { color: #f4d068; }
+
+        .nav-right-area { display: flex; align-items: center; gap: 20px; }
+        .nav { display: flex; list-style: none; gap: 8px; margin: 0; padding: 0; }
+        .nav-item { 
+            font-weight: bold; cursor: pointer; color: #e2e5ec; text-decoration: none; 
+            font-size: 0.9rem; padding: 8px 14px; border-radius: 20px; transition: 0.3s;
+        }
+        .nav-item:hover { color: white; background: rgba(255,255,255,0.1); }
+
+        /* ==================== 頂部極致可愛日夜切換鈕 ==================== */
+        .theme-toggle-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #f4d068;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        .theme-toggle-btn:hover {
+            background: #f4d068;
+            color: #131520;
+            transform: scale(1.05);
+            box-shadow: 0 0 12px rgba(244,208,104,0.4);
+        }
+
+        /* 頂部高清輪播區塊 */
+        .hero-section { padding: 40px 0; background: transparent; }
+        .swiper { width: 90%; max-width: 850px; height: 400px; border-radius: 24px; box-shadow: 0 12px 35px rgba(0,0,0,0.1); border: 6px solid white; background: #fff; }
+        .swiper-slide img { width: 100%; height: 100%; object-fit: contain; }
+
+        /* 內容排版區區塊 */
+        .container { max-width: 950px; margin: 40px auto; padding: 0 20px; }
+        
+        /* 標題打字機效果 */
+        .category-title { 
+            font-size: 1.55rem; color: var(--text-color); margin: 60px 0 30px;
+            display: flex; align-items: center; gap: 10px; font-weight: bold;
+        }
+        .category-title span { color: #f4d068; font-size: 1.4rem; }
+        .typewriter-effect { overflow: hidden; white-space: nowrap; animation: typing 1.5s steps(15, end); }
+        @keyframes typing { from { width: 0 } to { width: 100% } }
+
+        /* 手繪虛線分隔線 */
+        .section-divider { border: none; border-top: 2px dashed var(--divider-color); margin: 60px 0; position: relative; }
+        .section-divider::after { content: '✨'; position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: var(--bg-main); padding: 0 10px; color: #f4d068; transition: background 0.5s; }
+
+        /* 不規則交錯雜誌風格清單 */
+        .report-list { display: grid; grid-template-columns: 1fr; gap: 30px; }
+        
+        /* 卡片主體 */
+        .report-item {
+            display: flex; border-radius: 24px; overflow: hidden;
+            height: 150px; position: relative; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.03);
+            border: 2px solid var(--card-border);
+        }
+        
+        /* 左右交錯微調排版，創造高級雜誌跳躍感 */
+        .report-item:nth-child(even) { margin-left: 20px; }
+        .report-item:nth-child(odd) { margin-right: 20px; }
+
+        .report-item.color-yellow { background: var(--card-yellow); }
+        .report-item.color-purple { background: var(--card-purple); }
+        .report-item.color-green { background: var(--card-green); }
+        
+        /* 滑鼠移入：發出魔法霓虹光暈 */
+        .report-item:hover { transform: translateY(-6px) scale(1.005); }
+        .report-item.color-yellow:hover { border-color: #f4d068; box-shadow: 0 8px 25px var(--glow-yellow); }
+        .report-item.color-purple:hover { border-color: #b69eff; box-shadow: 0 8px 25px var(--glow-purple); }
+        .report-item.color-green:hover { border-color: #72db8e; box-shadow: 0 8px 25px var(--glow-green); }
+        
+        /* 左側照片縮圖 */
+        .item-img { width: 150px; min-width: 150px; height: 150px; background: #fff; overflow: hidden; }
+        .item-img img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s ease; }
+        .report-item:hover .item-img img { transform: scale(1.08); }
+        
+        /* 右側內文 */
+        .item-content { padding: 22px 25px; display: flex; flex-direction: column; justify-content: flex-start; flex-grow: 1; padding-right: 140px; }
+        .item-content h3 { margin: 0 0 8px; font-size: 1.25rem; color: var(--text-color); font-weight: bold; }
+        .item-content p { margin: 0; font-size: 0.9rem; color: var(--text-sub); line-height: 1.6; }
+        
+        /* 瀏覽報告按鈕 */
+        .btn-browse {
+            position: absolute; right: 25px; bottom: 22px;
+            background: var(--btn-bg); color: var(--btn-text); text-decoration: none;
+            padding: 9px 20px; font-size: 0.85rem; font-weight: bold;
+            border-radius: 14px; transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: flex; align-items: center; gap: 6px;
+        }
+        .btn-browse::before { content: '🪄'; font-size: 0.85rem; opacity: 0; transition: 0.3s ease; transform: scale(0); }
+        .report-item:hover .btn-browse::before { opacity: 1; transform: scale(1); }
+
+        footer { text-align: center; padding: 50px; background: rgba(255,255,255,0.02); color: var(--text-sub); margin-top: 120px; border-top: 1px dashed var(--divider-color); font-size: 0.9rem; }
+
+        @media (max-width: 768px) {
+            header { height: auto; padding: 15px 5%; flex-direction: column; gap: 12px; }
+            .nav-right-area { flex-direction: column; gap: 10px; width: 100%; }
+            .nav { flex-wrap: wrap; justify-content: center; }
+            .theme-toggle-btn { width: 100%; justify-content: center; }
+            .swiper { height: 260px; }
+            .report-item { height: auto; flex-direction: column; margin-left: 0 !important; margin-right: 0 !important; }
+            .item-img { width: 100%; height: 180px; }
+            .item-content { padding: 20px; padding-bottom: 70px; padding-right: 20px; }
+            .btn-browse { width: calc(100% - 40px); right: 20px; bottom: 15px; text-align: center; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo"><i class="fa-solid fa-wand-magic-sparkles"></i> 小龍的魔法書</div>
+    <div class="nav-right-area">
+        <div class="nav">
+            <a href="#self" class="nav-item">🔮 自主學習</a>
+            <a href="#explore" class="nav-item">🧪 探究實作</a>
+            <a href="#extend" class="nav-item">📜 科目延伸</a>
+        </div>
+        <button class="theme-toggle-btn" id="themeToggle">
+            <i class="fa-solid fa-moon" id="toggleIcon"></i> <span id="toggleText">奧術黑夜</span>
+        </button>
+    </div>
+</header>
+
+<section class="hero-section" data-aos="fade-down">
+    <div class="swiper">
+        <div class="swiper-wrapper">
+            <div class="swiper-slide"><img src="https://drive.google.com/thumbnail?id=1BLQp_YwzvBMQ1EGHSptBdOSrSstkpBiq&sz=w1200" alt="精選"></div>
+            <div class="swiper-slide"><img src="https://drive.google.com/thumbnail?id=1fcWpFNknNp4wrdjg6S929IdsBgVj3N-G&sz=w1200" alt="精選"></div>
+            <div class="swiper-slide"><img src="https://drive.google.com/thumbnail?id=1mii-dhymV1mSH_chrA2lDDFfxR2egHvT&sz=w1200" alt="精選"></div>
+        </div>
+        <div class="swiper-pagination"></div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+    </div>
+</section>
+
+<div class="container">
+    
+    <h2 id="self" class="category-title" data-aos="fade-right">
+        <span>🌙</span> <div class="typewriter-effect">自主學習成果</div>
+    </h2>
+    <div class="report-list">
+        
+        <div class="report-item color-yellow" data-aos="fade-up">
+            <div class="item-img">
+                <img src="https://drive.google.com/thumbnail?id=1BLQp_YwzvBMQ1EGHSptBdOSrSstkpBiq&sz=w400" alt="營養">
+            </div>
+            <div class="item-content">
+                <h3>自主學習-營養</h3>
+                <p>探索現代營養學與日常飲食調配，內含個人化膳食計畫與深入的健康數據追蹤分析。</p>
+            </div>
+            <a href="https://canva.link/1fpjzu0lrkaytij" target="_blank" class="btn-browse">瀏覽報告</a>
+        </div>
+
+        <div class="report-item color-purple" data-aos="fade-up">
+            <div class="item-img">
+                <img src="https://drive.google.com/thumbnail?id=1J5vemPYfe3BbquALo21iAequBNLQwBiK&sz=w400" alt="蔬果加工">
+            </div>
+            <div class="item-content">
+                <h3>自主學習-蔬果加工</h3>
+                <p>食品加工技術實作！詳細紀錄蔬菜與水果的加工原理、實驗步驟與成品保存成果。</p>
+            </div>
+            <a href="https://canva.link/cgmaxnv4ekhbalb" target="_blank" class="btn-browse">瀏覽報告</a>
+        </div>
+
+        <div class="report-item color-green" data-aos="fade-up">
+            <div class="item-img">
+                <img src="https://drive.google.com/thumbnail?id=1QC5CujLedKgdHV2gyDfpJyZ19TPjz0IZ&sz=w400" alt="副食品">
+            </div>
+            <div class="item-content">
+                <h3>自主學習-副食品分析</h3>
+                <p>從嬰幼兒發展與家政生物角度出發，解構不同成長階段副食品的營養配比與調製要點。</p>
+            </div>
+            <a href="https://canva.link/ekzjir69k3zza13" target="_blank" class="btn-browse">瀏覽報告</a>
+        </div>
+
+        <div class="report-item color-yellow" data-aos="fade-up">
+            <div class="item-img">
+                <img src="https://drive.google.com/thumbnail?id=1CNoDGUqpFgi2YYEuhn7mS9XNuI9MAnSG&sz=w400" alt="台大醫學">
+            </div>
+            <div class="item-content">
+                <h3>台大醫學營隊成果</h3>
+                <p>參與頂尖大學醫學營隊的實務操作與學習紀錄，點燃對醫學與生醫領域的深度探索熱情。</p>
+            </div>
+            <a href="https://canva.link/yr95uiu38jmteg7" target="_blank" class="btn-browse">瀏覽報告</a>
+        </div>
+
+    </div>
+
+    <hr class="section-divider">
+
+    <h2 id="explore" class="category-title" data-aos="fade-right">
+        <span>🪐</span> <div class="typewriter-effect">探究與實作成果</div>
+    </h2>
+    <div class="report-list">
+
+        <div class="report-item color-purple" data-aos="fade-up">
+            <div class="item-img">
+                <img src="https://drive.google.com/thumbnail?id=1U5uxjaKjWM4wWr4LtL9kmISBK7syRo3r&sz=w400" alt="彭巴效應">
+            </div>
+            <div class="item-content">
+                <h3>探究與實作-彭巴效應</h3>
+                <p>針對特定自然現象展開科學探究，包含嚴謹的實驗假設、變因控制與動態數據模型分析。</p>
+            </div>
+            <a href="https://canva.link/yb6sksofiu0402j" target="_blank" class="btn-browse">瀏覽報告</a>
+        </div>
+
+        <div class="report-item color-green" data-aos="fade-up">
+            <div class="item-img">
+                <img src="https://drive.google.com/thumbnail?id=1UEbTnrr8-P9m-pIaAdYPeyREqC19w5kC&sz=w400" alt="骨牌">
+            </div>
+            <div class="item-content">
+                <h3>高二骨牌比賽</h3>
+                <p>團隊合作與機構設計的精彩碰撞！精密計算物理軌道、重力加速度與連鎖反應的歷程紀錄。</p>
+            </div>
+            <a href="https://canva.link/lkof6p5tg4qvmw4" target="_blank" class="btn-browse">瀏覽報告</a>
+        </div>
+
+    </div>
+
+    <hr class="section-divider">
+
+    <h2 id="extend" class="category-title" data-aos="fade-right">
+        <span>✨</span> <div class="typewriter-effect">學科延伸專題</div>
+    </h2>
+    <div class="report-list">
+
+        <div class="report-item color-yellow" data-aos="fade-up">
+            <div class="item-img">
+                <img src="https://drive.google.com/thumbnail?id=1mii-dhymV1mSH_chrA2lDDFfxR2egHvT&sz=w400" alt="選修生物">
+            </div>
+            <div class="item-content">
+                <h3>選修生物 1</h3>
+                <p>高中生物核心課堂的延伸探索，針對細胞學、分子生物或生理機能進行進階文獻探討。</p>
+            </div>
+            <a href="https://canva.link/gb7k1j1pvpmwqh4" target="_blank" class="btn-browse">瀏覽報告</a>
+        </div>
+
+        <div class="report-item color-purple" data-aos="fade-up">
+            <div class="item-img">
+                <img src="https://drive.google.com/thumbnail?id=1NaJC_r5gr5XfXEbxjlBdhCugFaqviG07&sz=w400" alt="英文作文">
+            </div>
+            <div class="item-content">
+                <h3>英文作文選修</h3>
+                <p>精選多篇邏輯架構完整的寫作作品，展現個人英文批判性思考、修辭與進階語文素養。</p>
+            </div>
+            <a href="https://canva.link/u8k6po5bt7xmegp" target="_blank" class="btn-browse">瀏覽報告</a>
+        </div>
+
+        <div class="report-item color-green" data-aos="fade-up">
+            <div class="item-img">
+                <img src="https://drive.google.com/thumbnail?id=1vRDUiJX49vx9UqElPHq6RVWPb95SZSqy&sz=w400" alt="歷史">
+            </div>
+            <div class="item-content">
+                <h3>高一校外教學-歷史</h3>
+                <p>實地走訪古蹟與人文地景，結合在地文史脈絡與實地考察成果的整合性社會領域報告。</p>
+            </div>
+            <a href="https://canva.link/3gydso53e81s9it" target="_blank" class="btn-browse">瀏覽報告</a>
+        </div>
+
+        <div class="report-item color-yellow" data-aos="fade-up">
+            <div class="item-img">
+                <img src="https://drive.google.com/thumbnail?id=1dpdQnM1cmcrcEXcJj23ksrtAhAP2ykDL&sz=w400" alt="音樂海報">
+            </div>
+            <div class="item-content">
+                <h3>音樂海報設計</h3>
+                <p>結合美學與數位工具，深入剖析特定音樂流派 or 名家歷史的視覺創意專案。</p>
+            </div>
+            <a href="https://canva.link/z7bah2df97nga1x" target="_blank" class="btn-browse">瀏覽報告</a>
+        </div>
+
+    </div>
+
+</div>
+
+<footer>
+    ✦ 小龍的魔法書 ✧ 2026 學習歷程作品集 ✦<br>
+    <span style="font-size: 0.8rem; opacity: 0.6; margin-top: 6px; display:block;">Magical Interactivity • Day & Night Double Souls implemented</span>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    AOS.init({ duration: 1000, once: false });
+
+    // 初始化大輪播
+    new Swiper('.swiper', {
+        loop: true,
+        autoplay: { delay: 3500, disableOnInteraction: false },
+        pagination: { el: '.swiper-pagination', clickable: true },
+        navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+    });
+
+    // ==================== 日夜核心切換 JavaScript 邏輯 ====================
+    const themeToggleBtn = document.getElementById('themeToggle');
+    const toggleIcon = document.getElementById('toggleIcon');
+    const toggleText = document.getElementById('toggleText');
+
+    themeToggleBtn.addEventListener('click', function() {
+        // 檢查當前是否為黑夜模式
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        
+        if (isDark) {
+            // 切換回白晝模式
+            document.documentElement.removeAttribute('data-theme');
+            toggleIcon.className = 'fa-solid fa-moon';
+            toggleText.textContent = '奧術黑夜';
+        } else {
+            // 切換到黑夜模式
+            document.documentElement.setAttribute('data-theme', 'dark');
+            toggleIcon.className = 'fa-solid fa-sun';
+            toggleText.textContent = '馬卡龍白晝';
+        }
+    });
+
+    // 仙女棒滑鼠粒子特效（會隨日夜自動轉換粒子顏色）
+    document.addEventListener('mousemove', function(e) {
+        if (Math.random() > 0.15) return; 
+        
+        const particle = document.createElement('div');
+        particle.className = 'magic-particle';
+        
+        const symbols = ['✦', '✧', '★', '•'];
+        particle.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+        
+        particle.style.left = e.clientX + 'px';
+        particle.style.top = e.clientY + 'px';
+        
+        const size = Math.random() * 12 + 8;
+        particle.style.fontSize = size + 'px';
+        
+        document.body.appendChild(particle);
+        
+        setTimeout(() => { particle.remove(); }, 800);
+    });
+</script>
+
+</body>
+</html>
